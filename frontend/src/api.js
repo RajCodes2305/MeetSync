@@ -8,7 +8,7 @@ import axios from "axios";
 // ==========================================
 
 const api = axios.create({
-    baseURL: "/api",
+    baseURL: "https://meetsync-backend-ijtt.onrender.com/api",
 });
 
 
