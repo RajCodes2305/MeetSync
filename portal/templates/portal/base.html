@@ -1,0 +1,72 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}MeetSync{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'portal/favicon.svg' %}">
+    <link rel="stylesheet" href="{% static 'portal/vendor/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'portal/style.css' %}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="{% url 'home' %}">Meet<span class="brand-accent">Sync</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto">
+                {% if user.is_authenticated and user.role == 'parent' %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'parent_dashboard' %}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'parent_student' %}">My Student</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'parent_directory' %}">Find Teacher</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'parent_appointments' %}">My Appointments</a></li>
+                {% elif user.is_authenticated and user.role == 'teacher' %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_dashboard' %}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_students' %}">Students</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_parents' %}">Parents</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_events' %}">PTM Events</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_availability' %}">Availability</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_appointments' %}">Appointments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'teacher_reports' %}">Reports</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'directory' %}">Find Teachers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'privacy' %}">Privacy</a></li>
+                {% endif %}
+            </ul>
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    <li class="nav-item"><span class="nav-link text-muted">{{ user.name }}</span></li>
+                    <li class="nav-item"><a class="btn btn-outline-secondary btn-sm mt-1" href="{% url 'logout' %}">Logout</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                    <li class="nav-item"><a class="btn btn-primary btn-sm mt-1" href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<main class="container py-4">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% else %}alert-info{% endif %} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="text-center text-muted small py-4 border-top mt-5">
+    MeetSync - Parent-Teacher Meeting portal -
+    <a href="{% url 'privacy' %}" class="badge rounded-pill bg-light text-secondary border text-decoration-none">Privacy Policy</a>
+</footer>
+
+<script src="{% static 'portal/vendor/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

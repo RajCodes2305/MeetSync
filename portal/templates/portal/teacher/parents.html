@@ -1,0 +1,74 @@
+{% extends "portal/base.html" %}
+{% block title %}Parents - MeetSync{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Parents</h4>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-white">Create a parent account</div>
+            <div class="card-body">
+                <p class="small text-muted">The child you pick is linked permanently. Registration by parents picks from the same free list.</p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="mb-2"><label class="form-label small">Name</label>
+                        <input class="form-control" name="name" required></div>
+                    <div class="mb-2"><label class="form-label small">Email</label>
+                        <input class="form-control" type="email" name="email" required></div>
+                    <div class="mb-2"><label class="form-label small">Password</label>
+                        <input class="form-control" name="password" required></div>
+                    <div class="mb-2"><label class="form-label small">Phone (optional)</label>
+                        <input class="form-control" name="phone"></div>
+                    <div class="mb-2"><label class="form-label small">Child</label>
+                        <select class="form-select" name="student" required>
+                            <option value="">Select student (permanently linked)</option>
+                            {% for s in free_students %}
+                                <option value="{{ s.id }}">{{ s.roll_no }} - {{ s.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <button class="btn btn-primary btn-sm w-100 mt-2">Create parent</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">All parents</div>
+            <div class="card-body p-0">
+                {% if parents %}
+                <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Child</th><th></th></tr></thead>
+                    <tbody>
+                    {% for p in parents %}
+                        <tr>
+                            <td>{{ p.user.name }}</td>
+                            <td class="small">{{ p.user.email }}</td>
+                            <td class="small text-muted">{{ p.phone|default:"-" }}</td>
+                            <td class="small">
+                                {% for link in p.links.all %}
+                                    {{ link.student.name }} ({{ link.student.roll_no }})
+                                {% empty %}<span class="badge bg-secondary">None</span>{% endfor %}
+                            </td>
+                            <td class="text-end">
+                                <form method="post" action="{% url 'teacher_parent_delete' p.id %}" class="d-inline"
+                                      onsubmit="return confirm('Delete {{ p.user.name }}? Their child becomes claimable again.')">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                {% else %}
+                <p class="text-muted m-3">No parents yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

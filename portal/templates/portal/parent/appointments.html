@@ -1,0 +1,75 @@
+{% extends "portal/base.html" %}
+{% load meetsync_tags %}
+{% block title %}My Appointments - MeetSync{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">My appointments</h4>
+
+<h6 class="text-muted mt-4">Upcoming</h6>
+{% if upcoming %}
+<div class="table-responsive">
+<table class="table bg-white align-middle">
+    <thead><tr><th>Date</th><th>Time</th><th>Student</th><th>Teacher</th><th>Event</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+    {% for a in upcoming %}
+        <tr>
+            <td>{{ a.slot.date }}</td>
+            <td>{{ a.slot.start_time|t12 }} - {{ a.slot.end_time|t12 }}</td>
+            <td>{{ a.student.name }} <span class="text-muted small">({{ a.student.roll_no }})</span></td>
+            <td>{{ a.slot.teacher.user.name }}</td>
+            <td>{{ a.slot.event.title }}</td>
+            <td><span class="badge {{ a.status|status_badge }}">{{ a.status|capfirst }}</span></td>
+            <td class="text-end">
+                <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancel{{ a.id }}">Cancel</button>
+                <a class="btn btn-outline-secondary btn-sm" href="{% url 'parent_reschedule' a.id %}">Reschedule</a>
+                <!-- hidden cancel modal -->
+                <div class="modal fade" id="cancel{{ a.id }}" tabindex="-1">
+                    <div class="modal-dialog"><div class="modal-content">
+                        <form method="post" action="{% url 'parent_cancel' a.id %}">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h5 class="modal-title">Cancel appointment</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="mb-2">Cancel <strong>{{ a.slot.date }} {{ a.slot.start_time|t12 }}</strong> with {{ a.slot.teacher.user.name }}?</p>
+                                <input class="form-control" name="reason" placeholder="Optional reason">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep it</button>
+                                <button class="btn btn-danger">Yes, cancel</button>
+                            </div>
+                        </form>
+                    </div></div>
+                </div>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+{% else %}
+<div class="alert alert-info">No upcoming appointments.</div>
+{% endif %}
+
+<h6 class="text-muted mt-4">Past</h6>
+{% if past %}
+<table class="table bg-white align-middle">
+    <thead><tr><th>Date</th><th>Time</th><th>Teacher</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for a in past %}
+        <tr>
+            <td>{{ a.slot.date }}</td>
+            <td>{{ a.slot.start_time|t12 }}</td>
+            <td>{{ a.slot.teacher.user.name }}</td>
+            <td>
+                <span class="badge {{ a.status|status_badge }}">{{ a.status|capfirst }}</span>
+                {% if a.cancel_reason %}<div class="small text-muted">{{ a.cancel_reason }}</div>{% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="text-muted">Nothing here yet.</p>
+{% endif %}
+{% endblock %}

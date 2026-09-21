@@ -1,0 +1,75 @@
+{% extends "portal/base.html" %}
+{% load meetsync_tags %}
+{% block title %}Dashboard - MeetSync{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Parent dashboard</h4>
+    <a href="{% url 'parent_directory' %}" class="btn btn-primary">Book a meeting</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">My student</h6>
+                {% if student %}
+                    <h5>{{ student.name }}</h5>
+                    <p class="mb-1 text-muted small">Roll no: {{ student.roll_no }}</p>
+                    <p class="mb-1 text-muted small">{{ student.department }} - Year {{ student.year }} - Section {{ student.section }}</p>
+                    <a href="{% url 'parent_student' %}" class="small">View details</a>
+                {% else %}
+                    <p class="text-muted">No student linked yet. Contact the teacher.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header bg-white">Upcoming appointments</div>
+            <div class="card-body p-0">
+                {% if upcoming %}
+                    <table class="table mb-0">
+                        <thead><tr><th>Date</th><th>Time</th><th>Teacher</th><th>Event</th><th>Status</th></tr></thead>
+                        <tbody>
+                        {% for a in upcoming %}
+                            <tr>
+                                <td>{{ a.slot.date }}</td>
+                                <td>{{ a.slot.start_time|t12 }} - {{ a.slot.end_time|t12 }}</td>
+                                <td>{{ a.slot.teacher.user.name }}</td>
+                                <td>{{ a.slot.event.title }}</td>
+                                <td><span class="badge {{ a.status|status_badge }}">{{ a.status|capfirst }}</span></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-muted m-3">No upcoming appointments. <a href="{% url 'parent_directory' %}">Book one now</a>.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white">History</div>
+            <div class="card-body p-0">
+                {% if past %}
+                    <table class="table mb-0">
+                        <thead><tr><th>Date</th><th>Time</th><th>Teacher</th><th>Status</th></tr></thead>
+                        <tbody>
+                        {% for a in past %}
+                            <tr>
+                                <td>{{ a.slot.date }}</td>
+                                <td>{{ a.slot.start_time|t12 }}</td>
+                                <td>{{ a.slot.teacher.user.name }}</td>
+                                <td><span class="badge {{ a.status|status_badge }}">{{ a.status|capfirst }}</span></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p class="text-muted m-3 mb-0">Nothing here yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "portal/base.html" %}
+{% load meetsync_tags %}
+{% block title %}Book - MeetSync{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-1">Book with {{ teacher.user.name }}</h4>
+<p class="text-muted">
+    {% if student %}Booking for <strong>{{ student.name }}</strong> ({{ student.roll_no }}){% else %}No student linked to your account - contact the teacher.{% endif %}
+</p>
+
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+{% if has_booking %}
+    <div class="alert alert-warning">
+        Your child already has an appointment for this event.
+        <a href="{% url 'parent_appointments' %}">View or reschedule it</a>.
+    </div>
+{% endif %}
+
+{% if not days %}
+    <div class="alert alert-info">No free slots right now. Check back when the teacher opens more availability.</div>
+{% else %}
+    <div class="card mb-4">
+        <div class="card-header bg-white">Step 1 - Pick a day</div>
+        <div class="card-body d-flex flex-wrap gap-2">
+            {% for date, slots in days %}
+                <a class="btn {% if date.isoformat == selected_date %}btn-primary{% else %}btn-outline-primary{% endif %}"
+                   href="?date={{ date.isoformat }}">
+                    {{ date }} <span class="badge bg-light text-dark ms-1">{{ slots|length }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if selected_date %}
+        <div class="card">
+            <div class="card-header bg-white">Step 2 - Pick a time on {{ selected_date }}</div>
+            <div class="card-body">
+                {% if day_slots %}
+                    <div>
+                        {% for s in day_slots %}
+                            <div class="slot-chip">
+                                <form method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="slot_id" value="{{ s.id }}">
+                                    <button class="btn btn-outline-primary"
+                                            onclick="return confirm('Book {{ s.start_time|t12 }} - {{ s.end_time|t12 }} on {{ s.date }}?')"
+                                            {% if has_booking %}disabled{% endif %}>
+                                        {{ s.start_time|t12 }} - {{ s.end_time|t12 }}
+                                    </button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <p class="small text-muted mt-2 mb-0">Clicking a time books it instantly and confirms on the next page.</p>
+                {% else %}
+                    <p class="text-muted mb-0">All slots on this day are booked.</p>
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">Select a day above to see free times.</p>
+    {% endif %}
+{% endif %}
+{% endblock %}

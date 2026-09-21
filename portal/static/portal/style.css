@@ -1,0 +1,29 @@
+/* MeetSync - small custom layer on top of Bootstrap (flat, no gradients) */
+
+body {
+    background-color: #eef2f7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main { flex: 1; }
+
+.brand-accent { color: #2563eb; }
+
+/* flat hero */
+.hero {
+    background-color: #eef2f7;
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+}
+
+.card { border: 1px solid #dbe3ee; }
+
+/* slot chips on booking pages */
+.slot-chip {
+    display: inline-block;
+    margin: 0 0.35rem 0.35rem 0;
+}
+
+.table td, .table th { vertical-align: middle; }

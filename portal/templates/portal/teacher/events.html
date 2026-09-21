@@ -1,0 +1,82 @@
+{% extends "portal/base.html" %}
+{% load meetsync_tags %}
+{% block title %}PTM Events - MeetSync{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">PTM events</h4>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-white">Create a PTM event</div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Slots are generated automatically for every day between the dates,
+                    split by the slot length. They appear in My Availability right away
+                    and become bookable when you activate the event.
+                </p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-2">
+                            <label class="form-label small">{{ field.label }}</label>
+                            {{ field }}
+                            {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                        </div>
+                    {% endfor %}
+                    <button class="btn btn-primary btn-sm w-100 mt-2">Create event</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        {% if events %}
+        <div class="card mb-3">
+            <div class="card-header bg-white">All events</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead><tr><th>Event</th><th>Dates</th><th>Time</th><th>Slots</th><th>Status</th><th></th></tr></thead>
+                    <tbody>
+                    {% for e in events %}
+                        <tr>
+                            <td>{{ e.title }}<div class="small text-muted">{{ e.venue }}</div></td>
+                            <td class="small">{{ e.start_date }} to<br>{{ e.end_date }}</td>
+                            <td class="small">{{ e.start_time|t12 }}-{{ e.end_time|t12 }}<div class="text-muted">{{ e.slot_duration }} min</div></td>
+                            <td class="small">{{ e.booked_slots }} / {{ e.total_slots }} booked</td>
+                            <td><span class="badge {{ e.status|status_badge }}">{{ e.status|capfirst }}</span></td>
+                            <td class="text-end text-nowrap">
+                                {% if e.status == 'draft' %}
+                                    <form method="post" action="{% url 'teacher_event_status' e.id %}" class="d-inline">
+                                        {% csrf_token %}<input type="hidden" name="status" value="active">
+                                        <button class="btn btn-sm btn-success">Activate</button>
+                                    </form>
+                                {% elif e.status == 'active' %}
+                                    <form method="post" action="{% url 'teacher_event_status' e.id %}" class="d-inline">
+                                        {% csrf_token %}<input type="hidden" name="status" value="closed">
+                                        <button class="btn btn-sm btn-outline-dark">Close</button>
+                                    </form>
+                                {% endif %}
+                                <form method="post" action="{% url 'teacher_event_delete' e.id %}" class="d-inline"
+                                      onsubmit="return confirm('Delete this event and all its free slots?')">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-outline-danger">Del</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="alert alert-info">No events yet. Create your first PTM event on the left.</div>
+        {% endif %}
+        <p class="small text-muted">
+            Need extra times outside the event window? Add them from the
+            <a href="{% url 'teacher_availability' %}">Availability</a> page.
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "portal/base.html" %}
+{% load meetsync_tags %}
+{% block title %}Appointment #{{ appointment.id }} - MeetSync{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h4 class="fw-bold mb-1">Appointment #{{ appointment.id }}</h4>
+        <span class="badge {{ appointment.status|status_badge }}">{{ appointment.status|capfirst }}</span>
+    </div>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'teacher_appointments' %}">Back</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-header bg-white">Meeting</div>
+            <div class="card-body">
+                <p class="mb-1"><strong>{{ appointment.slot.date }}</strong> -
+                    {{ appointment.slot.start_time|t12 }} to {{ appointment.slot.end_time|t12 }}</p>
+                <p class="mb-1 text-muted">Event: {{ appointment.event.title }}</p>
+                <p class="mb-0 text-muted">Venue: {{ appointment.event.venue }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-white">Student</div>
+            <div class="card-body">
+                <h5>{{ appointment.student.name }}</h5>
+                <p class="mb-1 text-muted small">Roll no: {{ appointment.student.roll_no }}</p>
+                <p class="mb-0 text-muted small">{{ appointment.student.department }} -
+                    Year {{ appointment.student.year }} - Section {{ appointment.student.section }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card mb-3">
+            <div class="card-header bg-white">Parent</div>
+            <div class="card-body">
+                <h5>{{ appointment.parent.user.name }}</h5>
+                <p class="mb-1 small">{{ appointment.parent.user.email }}</p>
+                <p class="mb-0 small text-muted">Phone: {{ appointment.parent.phone|default:"not given" }}</p>
+            </div>
+        </div>
+
+        {% if appointment.status == 'booked' %}
+        <div class="card mb-3">
+            <div class="card-header bg-white">Actions</div>
+            <div class="card-body">
+                <form method="post" action="{% url 'teacher_appointment_complete' appointment.id %}" class="mb-3">
+                    {% csrf_token %}
+                    <label class="form-label small">Mark completed with private remarks</label>
+                    <textarea class="form-control" name="remarks" rows="3"
+                              placeholder="Visible only to you"></textarea>
+                    <button class="btn btn-success btn-sm mt-2">Mark completed</button>
+                </form>
+                <form method="post" action="{% url 'teacher_appointment_cancel' appointment.id %}"
+                      onsubmit="return confirm('Cancel this appointment? The slot becomes free.')">
+                    {% csrf_token %}
+                    <input class="form-control form-control-sm" name="reason" placeholder="Reason (optional)">
+                    <button class="btn btn-outline-danger btn-sm mt-2">Cancel appointment</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if appointment.status == 'completed' and appointment.remarks %}
+<div class="alert alert-secondary mt-3">
+    <strong>Your remarks:</strong> {{ appointment.remarks }}
+</div>
+{% endif %}
+{% if appointment.status == 'cancelled' and appointment.cancel_reason %}
+<div class="alert alert-secondary mt-3"><strong>Cancel reason:</strong> {{ appointment.cancel_reason }}</div>
+{% endif %}
+{% endblock %}

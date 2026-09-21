@@ -1,0 +1,67 @@
+{% extends "portal/base.html" %}
+{% block title %}Students - MeetSync{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Students</h4>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-white">Add a student</div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-2">
+                            <label class="form-label small">{{ field.label }}</label>
+                            {{ field }}
+                            {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                        </div>
+                    {% endfor %}
+                    <button class="btn btn-primary btn-sm w-100 mt-2">Add student</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header bg-white">All students</div>
+            <div class="card-body p-0">
+                {% if students %}
+                <div class="table-responsive">
+                <table class="table mb-0 align-middle">
+                    <thead><tr><th>Roll no</th><th>Name</th><th>Dept / Year / Sec</th><th>Parent</th><th></th></tr></thead>
+                    <tbody>
+                    {% for s in students %}
+                        <tr>
+                            <td>{{ s.roll_no }}</td>
+                            <td>{{ s.name }}</td>
+                            <td class="small text-muted">{{ s.department }} / Y{{ s.year }} / {{ s.section }}</td>
+                            <td class="small">
+                                {% if s.guardian %}
+                                    {{ s.guardian.parent.user.name }}
+                                {% else %}
+                                    <span class="badge bg-secondary">No parent</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end text-nowrap">
+                                <a class="btn btn-sm btn-outline-primary" href="{% url 'teacher_student_edit' s.id %}">Edit</a>
+                                <form method="post" action="{% url 'teacher_student_delete' s.id %}" class="d-inline"
+                                      onsubmit="return confirm('Delete {{ s.name }}? This also removes their parent link.')">
+                                    {% csrf_token %}
+                                    <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                {% else %}
+                <p class="text-muted m-3">No students yet. Add the first one using the form.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

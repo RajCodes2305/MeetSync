@@ -1,0 +1,63 @@
+{% extends "portal/base.html" %}
+{% load meetsync_tags %}
+{% block title %}My Availability - MeetSync{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">My availability</h4>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header bg-white">Add slots (optional top-up)</div>
+            <div class="card-body">
+                <p class="small text-muted">
+                    Creating a PTM event already fills your availability automatically.
+                    Use this only for extra times outside the event window.
+                    Duplicates are skipped, so overlapping windows are safe.
+                </p>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-2">
+                            <label class="form-label small">{{ field.label }}</label>
+                            {{ field }}
+                            {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                        </div>
+                    {% endfor %}
+                    <button class="btn btn-primary btn-sm w-100 mt-2">Add slots</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        {% if days %}
+            {% for date, day_slots in days %}
+                <div class="card mb-3">
+                    <div class="card-header bg-white d-flex justify-content-between">
+                        <strong>{{ date }}</strong>
+                        <span class="text-muted small">{{ day_slots|length }} slot(s)</span>
+                    </div>
+                    <div class="card-body">
+                        {% for s in day_slots %}
+                            <div class="slot-chip">
+                                <span class="badge {{ s.status|status_badge }}">
+                                    {{ s.start_time|t12 }} - {{ s.end_time|t12 }} ({{ s.event.title|truncatechars:18 }})
+                                </span>
+                                {% if s.status != 'booked' %}
+                                    <form method="post" action="{% url 'teacher_slot_delete' s.id %}" class="d-inline"
+                                          onsubmit="return confirm('Remove this free slot?')">
+                                        {% csrf_token %}
+                                        <button class="btn btn-sm btn-link text-danger p-0">remove</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="alert alert-info">No slots yet. Create a PTM event to generate them automatically.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

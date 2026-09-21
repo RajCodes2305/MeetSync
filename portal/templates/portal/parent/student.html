@@ -1,0 +1,25 @@
+{% extends "portal/base.html" %}
+{% block title %}My Student - MeetSync{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">My student</h4>
+{% if student %}
+<div class="card" style="max-width: 480px;">
+    <div class="card-body">
+        <h5>{{ student.name }}</h5>
+        <p class="mb-1">Roll number: <strong>{{ student.roll_no }}</strong></p>
+        <p class="mb-1">Department: {{ student.department }}</p>
+        <p class="mb-1">Year: {{ student.year }} &nbsp; Section: {{ student.section }}</p>
+        <hr>
+        <p class="small text-muted mb-0">
+            This student is permanently linked to your account.
+            Every booking you make is automatically for them.
+        </p>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning">
+    No student is linked to your account yet. Please contact the class teacher,
+    who can link your child from the Parents page.
+</div>
+{% endif %}
+{% endblock %}

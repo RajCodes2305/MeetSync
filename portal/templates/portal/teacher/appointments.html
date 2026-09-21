@@ -1,0 +1,43 @@
+{% extends "portal/base.html" %}
+{% load meetsync_tags %}
+{% block title %}Appointments - MeetSync{% endblock %}
+{% block content %}
+<h4 class="fw-bold mb-3">Appointments</h4>
+
+<div class="btn-group mb-3">
+    <a class="btn btn-sm {% if not filter_status %}btn-primary{% else %}btn-outline-primary{% endif %}"
+       href="{% url 'teacher_appointments' %}">All</a>
+    <a class="btn btn-sm {% if filter_status == 'booked' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+       href="?status=booked">Booked</a>
+    <a class="btn btn-sm {% if filter_status == 'completed' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+       href="?status=completed">Completed</a>
+    <a class="btn btn-sm {% if filter_status == 'cancelled' %}btn-primary{% else %}btn-outline-primary{% endif %}"
+       href="?status=cancelled">Cancelled</a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        {% if appointments %}
+        <div class="table-responsive">
+        <table class="table mb-0 align-middle">
+            <thead><tr><th>Date / Time</th><th>Student</th><th>Parent</th><th>Event</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            {% for a in appointments %}
+                <tr>
+                    <td class="small">{{ a.slot.date }}<div class="text-muted">{{ a.slot.start_time|t12 }}-{{ a.slot.end_time|t12 }}</div></td>
+                    <td class="small">{{ a.student.name }}<div class="text-muted">{{ a.student.roll_no }}</div></td>
+                    <td class="small">{{ a.parent.user.name }}<div class="text-muted">{{ a.parent.user.email }}</div></td>
+                    <td class="small text-muted">{{ a.slot.event.title }}</td>
+                    <td><span class="badge {{ a.status|status_badge }}">{{ a.status|capfirst }}</span></td>
+                    <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'teacher_appointment' a.id %}">Open</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+        {% else %}
+        <p class="text-muted m-3 mb-0">No appointments{% if filter_status %} with this status{% endif %}.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

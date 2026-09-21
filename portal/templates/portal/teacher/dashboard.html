@@ -1,0 +1,69 @@
+{% extends "portal/base.html" %}
+{% load meetsync_tags %}
+{% block title %}Teacher Dashboard - MeetSync{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">Teacher dashboard</h4>
+    <a href="{% url 'teacher_events' %}" class="btn btn-primary">Create PTM event</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card"><div class="card-body">
+            <div class="text-muted small">Today's meetings</div>
+            <div class="fs-3 fw-bold">{{ today_count }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card"><div class="card-body">
+            <div class="text-muted small">Booked (all events)</div>
+            <div class="fs-3 fw-bold">{{ upcoming_count }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card"><div class="card-body">
+            <div class="text-muted small">Completed</div>
+            <div class="fs-3 fw-bold">{{ completed_count }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card"><div class="card-body">
+            <div class="text-muted small">Open slots</div>
+            <div class="fs-3 fw-bold">{{ open_slots }}</div>
+        </div></div>
+    </div>
+</div>
+
+{% if active_event %}
+<div class="alert alert-success py-2">
+    Active event: <strong>{{ active_event.title }}</strong> -
+    {{ active_event.start_date }} to {{ active_event.end_date }},
+    {{ active_event.start_time|t12 }} to {{ active_event.end_time|t12 }},
+    {{ active_event.venue }}. Booking is open.
+</div>
+{% else %}
+<div class="alert alert-info py-2">No active PTM event. Create one and activate it so parents can book.</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header bg-white">Next booked appointments</div>
+    <div class="card-body p-0">
+        {% if upcoming %}
+        <table class="table mb-0">
+            <thead><tr><th>Date</th><th>Time</th><th>Student</th><th>Parent</th><th></th></tr></thead>
+            <tbody>
+            {% for a in upcoming %}
+                <tr>
+                    <td>{{ a.slot.date }}</td>
+                    <td>{{ a.slot.start_time|t12 }}</td>
+                    <td>{{ a.student.name }} ({{ a.student.roll_no }})</td>
+                    <td>{{ a.parent.user.name }}</td>
+                    <td class="text-end"><a class="btn btn-sm btn-outline-primary" href="{% url 'teacher_appointment' a.id %}">Details</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}<p class="text-muted m-3 mb-0">No booked appointments yet.</p>{% endif %}
+    </div>
+</div>
+{% endblock %}

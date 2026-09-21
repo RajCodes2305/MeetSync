@@ -1,0 +1,35 @@
+{% extends "portal/base.html" %}
+{% block title %}Register - MeetSync{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <h4 class="fw-bold mb-1">Create a parent account</h4>
+                <p class="text-muted small">
+                    Pick your child below. This choice is permanent: your account will
+                    always be linked to this one student, and bookings can only be made
+                    for them. If your child is not in the list, the teacher has to add
+                    them or free the link first.
+                </p>
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger py-2">{{ form.non_field_errors.0 }}</div>
+                {% endif %}
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% for e in field.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+                            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+                        </div>
+                    {% endfor %}
+                    <button class="btn btn-primary w-100">Create account</button>
+                </form>
+                <p class="small text-muted mt-3 mb-0">Already registered? <a href="{% url 'login' %}">Log in</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

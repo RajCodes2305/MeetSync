@@ -1,0 +1,43 @@
+{% extends "portal/base.html" %}
+{% block title %}MeetSync - Book your PTM slot{% endblock %}
+{% block content %}
+<div class="p-5 hero mb-4">
+    <h1 class="fw-bold">Book your parent-teacher meeting slot online</h1>
+    <p class="lead col-lg-8">
+        MeetSync lets parents book a meeting slot with the class teacher without
+        phone calls or queues. The teacher publishes dates and times, you pick a
+        free slot, and it is confirmed instantly. One booking per student per event.
+    </p>
+    {% if not user.is_authenticated %}
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg mt-2">Register as a parent</a>
+        <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg mt-2">Login</a>
+    {% endif %}
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">1. Pick your child</h5>
+                <p class="card-text">At registration you select your child once. The link is permanent, so every booking is always for your own child.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">2. Choose a slot</h5>
+                <p class="card-text">The teacher creates a PTM event with dates and times. Free slots appear as chips; booked ones disappear immediately.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">3. Show up</h5>
+                <p class="card-text">You get a confirmation with date, time and venue. Cancel or reschedule any time before the meeting.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
